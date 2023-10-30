@@ -47,7 +47,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public Product deleteProduct(Long idProductDelete) throws ProductNotFoundException {
-        Optional<Product> productByID = Optional.of(productRepository.getReferenceById(idProductDelete));
+        Optional<Product> productByID = productRepository.findById(idProductDelete);
         if(productByID.isPresent()){
             Product productDelete = productByID.get();
             productRepository.delete(productDelete);
@@ -61,7 +61,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public Product getById(Long idProduct) throws ProductNotFoundException {
-        Optional<Product> productByID = Optional.of(productRepository.getReferenceById(idProduct));
+        Optional<Product> productByID = productRepository.findById(idProduct);
         if(productByID.isPresent()){
             log.info("Get product by with id {} in {}",idProduct,new Date());
             return productByID.get();

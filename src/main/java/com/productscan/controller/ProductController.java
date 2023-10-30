@@ -54,4 +54,17 @@ public class ProductController {
         return ResponseEntity.ok(productDtoById);
     }
 
+    @DeleteMapping("/delete/{idProduct}")
+    public ResponseEntity<ProductDto>deleteProductById(@PathVariable("idProduct") Long idProduct) throws ProductNotFoundException {
+        Product productById = productService.deleteProduct(idProduct);
+        ProductDto productDtoById = ProductDto.builder()
+                .id(productById.getId())
+                .name(productById.getName())
+                .description(productById.getDescription())
+                .serialNumber(productById.getSerialNumber())
+                .photoUrl(productById.getPhotoUrl())
+                .build();
+        return ResponseEntity.ok(productDtoById);
+    }
+
 }
