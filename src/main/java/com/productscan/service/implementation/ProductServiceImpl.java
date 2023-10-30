@@ -1,5 +1,6 @@
 package com.productscan.service.implementation;
 
+import com.productscan.dto.ProductSaveDto;
 import com.productscan.entity.Product;
 import com.productscan.repository.ProductRepository;
 import com.productscan.service.api.ProductService;
@@ -7,13 +8,21 @@ import com.productscan.service.util.ProductInvalidParameterException;
 import com.productscan.service.util.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,7 +30,7 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-
+    private final ResourceLoader resourceLoader;
     @Override
     public Product saveProduct(Product productSave) {
         if(productSave!=null){
@@ -94,6 +103,37 @@ public class ProductServiceImpl implements ProductService {
         }else {
             log.error("Invalid parameter page - {} or size - {} in {}",page,size,new Date());
             throw new ProductInvalidParameterException("Invalid page or size, try yet");
+        }
+    }
+
+    @Override
+    public boolean existsBySerialNumber(String serialNumber) throws ProductInvalidParameterException {
+        if(!serialNumber.equals("")){
+            log.info("Check exists product by serial number with {} in {}",serialNumber,new Date());
+            return productRepository.existsBySerialNumber(serialNumber);
+        }else{
+            log.error("Invalid serial number in {}",new Date());
+            throw new ProductInvalidParameterException("Invalid serial number, try yet");
+        }
+
+    }
+
+    @Override
+    public void saveFile(MultipartFile imageFile, Product productSave) throws IOException {
+         if (imageFile != null && !imageFile.getOriginalFilename().isEmpty()) {
+             String projectRoot = System.getProperty("user.dir");
+             Path folderPath = Paths.get(projectRoot, "src/main/resources/images");
+
+            File uploadDir = folderPath.toFile();
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            String uuidFile = UUID.randomUUID().toString();
+            String resultFileName = uuidFile + "." + imageFile.getOriginalFilename();
+            File uploadFile = new File(uploadDir, resultFileName);
+            log.info("PATH : {} ",uploadFile.getPath());
+            imageFile.transferTo(uploadFile);
+            productSave.setPhotoUrl(resultFileName);
         }
     }
 }

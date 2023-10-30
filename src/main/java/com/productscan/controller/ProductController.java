@@ -4,8 +4,10 @@ package com.productscan.controller;
 import com.productscan.dto.GetAllProductDto;
 import com.productscan.dto.PaginationModelDto;
 import com.productscan.dto.ProductDto;
+import com.productscan.dto.ProductSaveDto;
 import com.productscan.entity.Product;
 import com.productscan.service.api.ProductService;
+import com.productscan.service.util.ProductAlreadyExistsException;
 import com.productscan.service.util.ProductInvalidParameterException;
 import com.productscan.service.util.ProductNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,8 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Date;
 
 @RestController
@@ -78,6 +82,30 @@ public class ProductController {
         var imgFile = new ClassPathResource(String.format("/images/%s",image));
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(imgFile.getInputStream(), response.getOutputStream());
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<ProductDto>saveProduct(@RequestPart("imageFile") MultipartFile file,
+                                                 @RequestPart("data") ProductSaveDto productSaveDto) throws IOException, ProductInvalidParameterException, ProductAlreadyExistsException {
+        if(!productService.existsBySerialNumber(productSaveDto.getSerialNumber())) {
+            Product productSave = new Product();
+            productSave.setName(productSaveDto.getName());
+            productSave.setDescription(productSaveDto.getDescription());
+            productSave.setSerialNumber(productSaveDto.getSerialNumber());
+            productService.saveFile(file, productSave);
+            Product productSaveResult = productService.saveProduct(productSave);
+            ProductDto productSaveResultDto = ProductDto.builder()
+                    .id(productSaveResult.getId())
+                    .name(productSaveResult.getName())
+                    .description(productSaveResult.getDescription())
+                    .serialNumber(productSaveResult.getSerialNumber())
+                    .photoUrl(productSaveResult.getPhotoUrl())
+                    .build();
+            return ResponseEntity.ok(productSaveResultDto);
+        }else{
+            throw new ProductAlreadyExistsException(String.format("Product with serial number %s already exists",productSaveDto.getSerialNumber()));
+        }
+
     }
 
 }
