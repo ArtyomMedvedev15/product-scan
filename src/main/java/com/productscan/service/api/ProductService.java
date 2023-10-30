@@ -1,4 +1,4 @@
-package com.productscan.service;
+package com.productscan.service.api;
 
 import com.productscan.entity.Product;
 import com.productscan.service.util.ProductInvalidParameterException;

@@ -5,15 +5,20 @@ import com.productscan.dto.GetAllProductDto;
 import com.productscan.dto.PaginationModelDto;
 import com.productscan.dto.ProductDto;
 import com.productscan.entity.Product;
-import com.productscan.service.ProductService;
+import com.productscan.service.api.ProductService;
 import com.productscan.service.util.ProductInvalidParameterException;
 import com.productscan.service.util.ProductNotFoundException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Date;
 
 @RestController
@@ -65,6 +70,14 @@ public class ProductController {
                 .photoUrl(productById.getPhotoUrl())
                 .build();
         return ResponseEntity.ok(productDtoById);
+    }
+
+    @GetMapping(value = "/image/{imageId}",
+            produces = MediaType.IMAGE_JPEG_VALUE)
+    public void getImage(@PathVariable("imageId")String image,HttpServletResponse response) throws IOException {
+        var imgFile = new ClassPathResource(String.format("/images/%s",image));
+        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+        StreamUtils.copy(imgFile.getInputStream(), response.getOutputStream());
     }
 
 }

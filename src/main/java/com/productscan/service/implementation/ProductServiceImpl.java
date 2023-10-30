@@ -1,7 +1,8 @@
-package com.productscan.service;
+package com.productscan.service.implementation;
 
 import com.productscan.entity.Product;
 import com.productscan.repository.ProductRepository;
+import com.productscan.service.api.ProductService;
 import com.productscan.service.util.ProductInvalidParameterException;
 import com.productscan.service.util.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class ProductServiceImpl implements ProductService{
+public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
