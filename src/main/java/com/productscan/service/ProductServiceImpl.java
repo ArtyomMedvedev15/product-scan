@@ -9,12 +9,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
+@Service
 public class ProductServiceImpl implements ProductService{
 
     private final ProductRepository productRepository;
@@ -83,7 +85,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public Page<Product> findAll(int page, int size) throws ProductInvalidParameterException {
-        if(page>0 && size>0) {
+        if(page>=0 && size>0) {
             Pageable pageable = PageRequest.of(page, size);
             Page<Product> listOfProduct = productRepository.findAll(pageable);
             log.info("Get all product with total item {} in {}",listOfProduct.getTotalElements(),new Date());
