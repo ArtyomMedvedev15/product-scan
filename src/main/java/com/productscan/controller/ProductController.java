@@ -10,9 +10,11 @@ import com.productscan.service.api.ProductService;
 import com.productscan.service.util.ProductAlreadyExistsException;
 import com.productscan.service.util.ProductInvalidParameterException;
 import com.productscan.service.util.ProductNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
@@ -24,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/product")
@@ -32,12 +35,14 @@ import java.util.Date;
 public class ProductController {
 
 
+
     private final ProductService productService;
 
-    @GetMapping("/all")
-    public ResponseEntity<GetAllProductDto>getAllProduct( @RequestParam(defaultValue = "1") int page,
-                                                          @RequestParam(defaultValue = "10") int size) throws ProductInvalidParameterException {
+    @GetMapping("/")
+    public ResponseEntity<GetAllProductDto>getAllProduct(@RequestParam(defaultValue = "1") int page,
+                                                         @RequestParam(defaultValue = "10") int size, HttpServletRequest request) throws ProductInvalidParameterException {
         Page<Product> listProduct = productService.findAll(page, size);
+        listProduct.getContent().forEach(o1->o1.setPhotoUrl(request.getRequestURL().toString()+"image/"+o1.getPhotoUrl()));
         PaginationModelDto paginationModelDto  = PaginationModelDto.builder()
                 .currentPage(listProduct.getNumber())
                 .totalPages(listProduct.getTotalPages())
