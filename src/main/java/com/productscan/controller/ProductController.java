@@ -23,8 +23,12 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -81,9 +85,22 @@ public class ProductController {
     @GetMapping(value = "/image/{imageId}",
             produces = MediaType.IMAGE_JPEG_VALUE)
     public void getImage(@PathVariable("imageId")String image,HttpServletResponse response) throws IOException {
-        var imgFile = new ClassPathResource(String.format("/images/%s",image));
-        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-        StreamUtils.copy(imgFile.getInputStream(), response.getOutputStream());
+        String relativePath = "uploads/";
+        String projectDirectory = System.getProperty("user.dir");
+        String saveDirectory = Paths.get(projectDirectory, relativePath).toString();
+
+        File imgFile = new File(saveDirectory, image);
+
+        if (imgFile.exists() && imgFile.isFile()) {
+            response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+            try (InputStream inputStream = new FileInputStream(imgFile)) {
+                StreamUtils.copy(inputStream, response.getOutputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
     }
 
     @PostMapping("/save")

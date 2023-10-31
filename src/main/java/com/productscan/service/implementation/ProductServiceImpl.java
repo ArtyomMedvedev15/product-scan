@@ -7,6 +7,7 @@ import com.productscan.service.util.ProductInvalidParameterException;
 import com.productscan.service.util.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -28,6 +31,7 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final ResourceLoader resourceLoader;
 
     @Override
     public Product saveProduct(Product productSave) {
@@ -118,20 +122,18 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void saveFile(MultipartFile imageFile, Product productSave) throws IOException {
-         if (imageFile != null && !imageFile.getOriginalFilename().isEmpty()) {
-             String projectRoot = System.getProperty("user.dir");
-             Path folderPath = Paths.get(projectRoot, "src/main/resources/images");
-
-            File uploadDir = folderPath.toFile();
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
-            }
-            String uuidFile = UUID.randomUUID().toString();
-            String resultFileName = uuidFile + "." + imageFile.getOriginalFilename();
-            File uploadFile = new File(uploadDir, resultFileName);
-            log.info("PATH : {} ",uploadFile.getPath());
-            imageFile.transferTo(uploadFile);
-            productSave.setPhotoUrl(resultFileName);
+        String relativePath = "uploads/";
+        String projectDirectory = System.getProperty("user.dir");
+        String saveDirectory = Paths.get(projectDirectory, relativePath).toString();
+        File directory = new File(saveDirectory);
+        if (!directory.exists()) {
+            directory.mkdirs();
         }
-    }
+        String uuidFile = UUID.randomUUID().toString();
+        String resultFileName = uuidFile + "." + imageFile.getOriginalFilename();
+        File uploadFile = new File(saveDirectory, resultFileName);
+        imageFile.transferTo(uploadFile);
+        productSave.setPhotoUrl(resultFileName);
+        }
+
 }

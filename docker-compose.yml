@@ -1,0 +1,36 @@
+version: '2'
+
+services:
+  db:
+    image: 'postgres:13.1-alpine'
+    container_name: db
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=productscan
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  app:
+    build: ../product-scan
+    restart: on-failure
+    container_name: product-scan
+    ports:
+      - 8080:8080
+    links:
+      - db
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/productscan
+      - SPRING_FLYWAY_URL=jdbc:postgresql://db:5432/productscan
+      - SPRING_FLYWAY_USER=postgres
+      - SPRING_FLYWAY_PASSWORD=1234
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+    volumes:
+      - /src/main/resources/images:/src/main/resources/images
+volumes:
+  db_data:
