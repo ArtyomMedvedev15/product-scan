@@ -33,9 +33,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ProductController {
-
-
-
     private final ProductService productService;
 
     @GetMapping("/")
@@ -90,7 +87,7 @@ public class ProductController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<ProductDto>saveProduct(@RequestPart("imageFile") MultipartFile file,
+    public ResponseEntity<ProductDto>saveProduct(@RequestPart("file") MultipartFile file,
                                                  @RequestPart("data") ProductSaveDto productSaveDto) throws IOException, ProductInvalidParameterException, ProductAlreadyExistsException {
         if(!productService.existsBySerialNumber(productSaveDto.getSerialNumber())) {
             Product productSave = new Product();
@@ -110,7 +107,19 @@ public class ProductController {
         }else{
             throw new ProductAlreadyExistsException(String.format("Product with serial number %s already exists",productSaveDto.getSerialNumber()));
         }
+    }
 
+    @GetMapping("/serial/number/{serial_number}")
+    public ResponseEntity<ProductDto>getBySerialNumber(@PathVariable("serial_number") String serial_number) throws ProductNotFoundException {
+        Product productById = productService.findBySerialNumber(serial_number);
+        ProductDto productDtoById = ProductDto.builder()
+                .id(productById.getId())
+                .name(productById.getName())
+                .description(productById.getDescription())
+                .serialNumber(productById.getSerialNumber())
+                .photoUrl(productById.getPhotoUrl())
+                .build();
+        return ResponseEntity.ok(productDtoById);
     }
 
 }

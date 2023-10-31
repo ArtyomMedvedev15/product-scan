@@ -1,6 +1,5 @@
 package com.productscan.service.implementation;
 
-import com.productscan.dto.ProductSaveDto;
 import com.productscan.entity.Product;
 import com.productscan.repository.ProductRepository;
 import com.productscan.service.api.ProductService;
@@ -8,7 +7,6 @@ import com.productscan.service.util.ProductInvalidParameterException;
 import com.productscan.service.util.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,7 +28,7 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final ResourceLoader resourceLoader;
+
     @Override
     public Product saveProduct(Product productSave) {
         if(productSave!=null){

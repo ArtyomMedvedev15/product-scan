@@ -1,4 +1,4 @@
-create sequence product_seq
+create sequence if not exists product_seq
     increment by 50;
 
 create table if not exists product
