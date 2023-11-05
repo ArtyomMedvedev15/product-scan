@@ -2,7 +2,6 @@ package com.productscan.controller;
 
 
 import com.productscan.dto.GetAllProductDto;
-import com.productscan.dto.PaginationModelDto;
 import com.productscan.dto.ProductDto;
 import com.productscan.dto.ProductSaveDto;
 import com.productscan.entity.Product;
@@ -11,26 +10,16 @@ import com.productscan.service.util.ProductAlreadyExistsException;
 import com.productscan.service.util.ProductInvalidParameterException;
 import com.productscan.service.util.ProductNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.Date;
-import java.util.stream.Collectors;
+
+import static com.productscan.dto.GetAllProductDto.getAllProductToDto;
+import static com.productscan.dto.ProductDto.getProductDto;
 
 @RestController
 @RequestMapping("/api/v1/product")
@@ -40,83 +29,56 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/")
-    public ResponseEntity<GetAllProductDto>getAllProduct(@RequestParam(defaultValue = "1") int page,
-                                                         @RequestParam(defaultValue = "10") int size, HttpServletRequest request) throws ProductInvalidParameterException {
-        Page<Product> listProduct = productService.findAll(page, size);
-        PaginationModelDto paginationModelDto  = PaginationModelDto.builder()
-                .currentPage(listProduct.getNumber())
-                .totalPages(listProduct.getTotalPages())
-                .build();
-        GetAllProductDto getAllProductDto = GetAllProductDto.builder()
-                .pagination(paginationModelDto)
-                .data(listProduct.getContent())
-                .build();
-        log.info("Get all product with page {} and size {} in {}",page,size,new Date());
+    public ResponseEntity<GetAllProductDto>getAllProduct(@RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(defaultValue = "10") int size,
+                                                         @RequestParam(defaultValue = "all",required = false)String category) throws ProductInvalidParameterException {
+        Page<Product> listProduct;
+        GetAllProductDto getAllProductDto;
+        System.out.println("CATEGORY " + category);
+        if(category.equals("all")) {
+            log.info("Get all product in {}",new Date());
+            listProduct = productService.findAll(page, size);
+        }else{
+            log.info("Get all product by category {} in {}",category,new Date());
+            listProduct = productService.findAllByCategory(page, size,category);
+        }
+        getAllProductDto = getAllProductToDto(listProduct);
+        log.info("Get all product with page {} and size {} in {}", page, size, new Date());
         return ResponseEntity.ok(getAllProductDto);
     }
+
+
 
     @GetMapping("/{idProduct}")
     public ResponseEntity<ProductDto>getProductById(@PathVariable("idProduct") Long idProduct) throws ProductNotFoundException {
         Product productById = productService.getById(idProduct);
-        ProductDto productDtoById = ProductDto.builder()
-                .id(productById.getId())
-                .name(productById.getName())
-                .description(productById.getDescription())
-                .serialNumber(productById.getSerialNumber())
-                 .build();
+        ProductDto productDtoById = getProductDto(productById);
         return ResponseEntity.ok(productDtoById);
     }
+
+
 
     @DeleteMapping("/delete/{idProduct}")
     public ResponseEntity<ProductDto>deleteProductById(@PathVariable("idProduct") Long idProduct) throws ProductNotFoundException {
         Product productById = productService.deleteProduct(idProduct);
-        ProductDto productDtoById = ProductDto.builder()
-                .id(productById.getId())
-                .name(productById.getName())
-                .description(productById.getDescription())
-                .serialNumber(productById.getSerialNumber())
-                 .build();
+        ProductDto productDtoById = getProductDto(productById);
         return ResponseEntity.ok(productDtoById);
     }
 
-    @GetMapping(value = "/image/{imageId}",
-            produces = MediaType.IMAGE_JPEG_VALUE)
-    public void getImage(@PathVariable("imageId")String image,HttpServletResponse response) throws IOException {
-        String relativePath = "uploads/";
-        String projectDirectory = System.getProperty("user.dir");
-        String saveDirectory = Paths.get(projectDirectory, relativePath).toString();
-
-        File imgFile = new File(saveDirectory, image);
-
-        if (imgFile.exists() && imgFile.isFile()) {
-            response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-            try (InputStream inputStream = new FileInputStream(imgFile)) {
-                StreamUtils.copy(inputStream, response.getOutputStream());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        }
-    }
 
     @PostMapping("/save")
-    public ResponseEntity<ProductDto>saveProduct(@RequestPart("file") MultipartFile file,
-                                                 @RequestPart("data") ProductSaveDto productSaveDto) throws IOException, ProductInvalidParameterException, ProductAlreadyExistsException {
+    public ResponseEntity<ProductDto>saveProduct(@RequestParam("data") ProductSaveDto productSaveDto) throws ProductInvalidParameterException, ProductAlreadyExistsException {
         if(!productService.existsBySerialNumber(productSaveDto.getSerialNumber())) {
             Product productSave = new Product();
             productSave.setName(productSaveDto.getName());
             productSave.setDescription(productSaveDto.getDescription());
             productSave.setSerialNumber(productSaveDto.getSerialNumber());
-            productService.saveFile(file, productSave);
+            productSave.setColor(productSaveDto.getColor());
+            productSave.setUniqCode(productSave.getUniqCode());
+            productSave.setCategory(productSave.getCategory());
             Product productSaveResult = productService.saveProduct(productSave);
-            ProductDto productSaveResultDto = ProductDto.builder()
-                    .id(productSaveResult.getId())
-                    .name(productSaveResult.getName())
-                    .description(productSaveResult.getDescription())
-                    .serialNumber(productSaveResult.getSerialNumber())
-                     .build();
-            return ResponseEntity.ok(productSaveResultDto);
+            ProductDto productDtoSaveResultDto = getProductDto(productSaveResult);
+            return ResponseEntity.ok(productDtoSaveResultDto);
         }else{
             throw new ProductAlreadyExistsException(String.format("Product with serial number %s already exists",productSaveDto.getSerialNumber()));
         }
@@ -124,14 +86,9 @@ public class ProductController {
 
     @GetMapping("/serial/number/{serial_number}")
     public ResponseEntity<ProductDto>getBySerialNumber(@PathVariable("serial_number") String serial_number) throws ProductNotFoundException {
-        Product productById = productService.findBySerialNumber(serial_number);
-        ProductDto productDtoById = ProductDto.builder()
-                .id(productById.getId())
-                .name(productById.getName())
-                .description(productById.getDescription())
-                .serialNumber(productById.getSerialNumber())
-                 .build();
-        return ResponseEntity.ok(productDtoById);
+        Product productBySerialNumber = productService.findBySerialNumber(serial_number);
+        ProductDto productBySerialNumberDto = getProductDto(productBySerialNumber);
+        return ResponseEntity.ok(productBySerialNumberDto);
     }
 
 }

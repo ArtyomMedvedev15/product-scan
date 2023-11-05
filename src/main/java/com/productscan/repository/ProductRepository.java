@@ -11,4 +11,5 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     Page<Product>findAll(Pageable pageable);
     Product findBySerialNumber(String serialNumber);
     boolean existsBySerialNumber(String serialNumber);
+    Page<Product>findAllByCategory(Pageable pageable,String category);
 }

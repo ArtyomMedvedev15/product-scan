@@ -62,7 +62,6 @@ class ProductServiceImplTest {
         productSave.setName("Test");
         productSave.setDescription("Test");
         productSave.setSerialNumber("Test");
-        productSave.setPhotoUrl("Test");
 
         when(productRepository.save(productSave)).thenReturn(productSave);
 
@@ -82,7 +81,6 @@ class ProductServiceImplTest {
         productUpdate.setName("Test");
         productUpdate.setDescription("Test");
         productUpdate.setSerialNumber("Test");
-        productUpdate.setPhotoUrl("Test");
 
         when(productRepository.save(productUpdate)).thenReturn(productUpdate);
 
@@ -100,7 +98,6 @@ class ProductServiceImplTest {
         productDelete.setName("Test");
         productDelete.setDescription("Test");
         productDelete.setSerialNumber("Test");
-        productDelete.setPhotoUrl("Test");
 
         when(productRepository.findById(123L)).thenReturn(Optional.of(productDelete));
 
@@ -119,7 +116,6 @@ class ProductServiceImplTest {
         productbyID.setName("Test");
         productbyID.setDescription("Test");
         productbyID.setSerialNumber("Test");
-        productbyID.setPhotoUrl("Test");
 
         when(productRepository.findById(123L)).thenReturn(Optional.of(productbyID));
 
@@ -138,7 +134,6 @@ class ProductServiceImplTest {
         productBySerialNumber.setName("Test");
         productBySerialNumber.setDescription("Test");
         productBySerialNumber.setSerialNumber("Test");
-        productBySerialNumber.setPhotoUrl("Test");
 
         when(productRepository.findBySerialNumber("Test")).thenReturn(productBySerialNumber);
 
@@ -170,7 +165,6 @@ class ProductServiceImplTest {
         productBySerialNumber.setName("Test");
         productBySerialNumber.setDescription("Test");
         productBySerialNumber.setSerialNumber("Test");
-        productBySerialNumber.setPhotoUrl("Test");
 
         when(productRepository.existsBySerialNumber("Test")).thenReturn(true);
 

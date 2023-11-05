@@ -9,4 +9,7 @@ public class ProductSaveDto {
     private String name;
     private String description;
     private String serialNumber;
+    private String color;
+    private String category;
+    private String uniqCode;
 }

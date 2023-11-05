@@ -19,5 +19,6 @@ public interface ProductService {
     Product findBySerialNumber(String serialNumber) throws ProductNotFoundException;
     Page<Product> findAll(int page, int size) throws ProductInvalidParameterException;
     boolean existsBySerialNumber(String serialNumber) throws ProductInvalidParameterException;
-    void saveFile(MultipartFile imageFile, Product productSave) throws IOException;
+    Page<Product>findAllByCategory(int page, int size,String category) throws ProductInvalidParameterException;
+
 }

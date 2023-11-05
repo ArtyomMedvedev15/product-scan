@@ -31,8 +31,6 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final ResourceLoader resourceLoader;
-
     @Override
     public Product saveProduct(Product productSave) {
         if(productSave!=null){
@@ -121,18 +119,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void saveFile(MultipartFile imageFile, Product productSave) throws IOException {
-        String relativePath = "uploads/";
-        String projectDirectory = System.getProperty("user.dir");
-        String saveDirectory = Paths.get(projectDirectory, relativePath).toString();
-        File directory = new File(saveDirectory);
-        if (!directory.exists()) {
-            directory.mkdirs();
+    public Page<Product> findAllByCategory(int page, int size, String category) throws ProductInvalidParameterException {
+        if(page>=0 && size>0) {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Product> listOfProduct = productRepository.findAllByCategory(pageable,category);
+            log.info("Get all product with total item {} in {}",listOfProduct.getTotalElements(),new Date());
+            return listOfProduct;
+        }else {
+            log.error("Invalid parameter page - {} or size - {} in {}",page,size,new Date());
+            throw new ProductInvalidParameterException("Invalid page or size, try yet");
         }
-        String uuidFile = UUID.randomUUID().toString();
-        String resultFileName = uuidFile + "." + imageFile.getOriginalFilename();
-        File uploadFile = new File(saveDirectory, resultFileName);
-        imageFile.transferTo(uploadFile);
-        }
+    }
+
 
 }

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -56,7 +57,9 @@ class ProductRepositoryTest {
         productSave.setName("Test");
         productSave.setDescription("Test");
         productSave.setSerialNumber("Test");
-        productSave.setPhotoUrl("Test");
+        productSave.setColor("Test");
+        productSave.setUniqCode("Test");
+        productSave.setCategory("Phone");
 
         Product productSaveResult = productRepository.save(productSave);
         Assert.assertEquals("Test", productSaveResult.getName());
@@ -68,8 +71,9 @@ class ProductRepositoryTest {
         productSave.setName("Test");
         productSave.setDescription("Test");
         productSave.setSerialNumber("Test");
-        productSave.setPhotoUrl("Test");
-
+        productSave.setColor("Test");
+        productSave.setUniqCode("Test");
+        productSave.setCategory("Phone");
         Product productSaveResult = productRepository.save(productSave);
 
         Product productById = productRepository.findById(productSaveResult.getId()).get();
@@ -82,7 +86,9 @@ class ProductRepositoryTest {
         productSave.setName("Test");
         productSave.setDescription("Test");
         productSave.setSerialNumber("Test");
-        productSave.setPhotoUrl("Test");
+        productSave.setColor("Test");
+        productSave.setUniqCode("Test");
+        productSave.setCategory("Phone");
 
         Product productSaveResult = productRepository.save(productSave);
 
@@ -96,7 +102,10 @@ class ProductRepositoryTest {
         productSave.setName("Test");
         productSave.setDescription("Test");
         productSave.setSerialNumber("Test");
-        productSave.setPhotoUrl("Test");
+        productSave.setColor("Test");
+        productSave.setUniqCode("Test");
+        productSave.setCategory("Phone");
+
         Product productSaveResult = productRepository.save(productSave);
         boolean existsBySerialNumber = productRepository.existsBySerialNumber(productSaveResult.getSerialNumber());
         Assert.assertTrue(existsBySerialNumber);
@@ -108,7 +117,9 @@ class ProductRepositoryTest {
         productSave.setName("Test");
         productSave.setDescription("Test");
         productSave.setSerialNumber("Test");
-        productSave.setPhotoUrl("Test");
+        productSave.setColor("Test");
+        productSave.setUniqCode("Test");
+        productSave.setCategory("Phone");
 
         Product productSaveResult = productRepository.save(productSave);
         productRepository.delete(productSaveResult);
@@ -122,7 +133,9 @@ class ProductRepositoryTest {
         productSave.setName("Test");
         productSave.setDescription("Test");
         productSave.setSerialNumber("Test");
-        productSave.setPhotoUrl("Test");
+        productSave.setColor("Test");
+        productSave.setUniqCode("Test");
+        productSave.setCategory("Phone");
 
         Product productSaveResult = productRepository.save(productSave);
 
@@ -137,7 +150,9 @@ class ProductRepositoryTest {
         productSave.setName("Test");
         productSave.setDescription("Test");
         productSave.setSerialNumber("Test");
-        productSave.setPhotoUrl("Test");
+        productSave.setColor("Test");
+        productSave.setUniqCode("Test");
+        productSave.setCategory("Phone");
 
         Product productSaveResult = productRepository.save(productSave);
 
@@ -146,6 +161,25 @@ class ProductRepositoryTest {
 
         Assert.assertEquals("Updated", updatedProduct.getName());
         Assert.assertEquals(productSaveResult.getId(),updatedProduct.getId());
+    }
+
+    @Test
+    public void FindByCategoryTest_ReturnTrue(){
+        Product productSave = new Product();
+        productSave.setName("Test");
+        productSave.setDescription("Test");
+        productSave.setSerialNumber("Test");
+        productSave.setColor("Test");
+        productSave.setUniqCode("Test");
+        productSave.setCategory("Phone");
+
+        productRepository.save(productSave);
+        Pageable pageable = PageRequest.of(0, 1);
+
+        Page<Product> phoneList = productRepository.findAllByCategory(pageable, "Phone");
+
+        Assert.assertTrue(phoneList.getContent().size()>0);
+
     }
 
 }
