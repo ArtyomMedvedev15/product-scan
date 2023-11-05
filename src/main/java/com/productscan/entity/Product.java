@@ -16,6 +16,8 @@ public class Product {
     private String name;
     private String description;
     private String serialNumber;
-    private String photoUrl;
+    private String color;
+    private String category;
+    private String uniqCode;
 
 }

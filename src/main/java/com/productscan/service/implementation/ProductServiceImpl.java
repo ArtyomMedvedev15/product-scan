@@ -133,7 +133,6 @@ public class ProductServiceImpl implements ProductService {
         String resultFileName = uuidFile + "." + imageFile.getOriginalFilename();
         File uploadFile = new File(saveDirectory, resultFileName);
         imageFile.transferTo(uploadFile);
-        productSave.setPhotoUrl(resultFileName);
         }
 
 }

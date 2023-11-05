@@ -43,7 +43,6 @@ public class ProductController {
     public ResponseEntity<GetAllProductDto>getAllProduct(@RequestParam(defaultValue = "1") int page,
                                                          @RequestParam(defaultValue = "10") int size, HttpServletRequest request) throws ProductInvalidParameterException {
         Page<Product> listProduct = productService.findAll(page, size);
-        listProduct.getContent().forEach(o1->o1.setPhotoUrl(request.getRequestURL().toString()+"image/"+o1.getPhotoUrl()));
         PaginationModelDto paginationModelDto  = PaginationModelDto.builder()
                 .currentPage(listProduct.getNumber())
                 .totalPages(listProduct.getTotalPages())
@@ -64,8 +63,7 @@ public class ProductController {
                 .name(productById.getName())
                 .description(productById.getDescription())
                 .serialNumber(productById.getSerialNumber())
-                .photoUrl(productById.getPhotoUrl())
-                .build();
+                 .build();
         return ResponseEntity.ok(productDtoById);
     }
 
@@ -77,8 +75,7 @@ public class ProductController {
                 .name(productById.getName())
                 .description(productById.getDescription())
                 .serialNumber(productById.getSerialNumber())
-                .photoUrl(productById.getPhotoUrl())
-                .build();
+                 .build();
         return ResponseEntity.ok(productDtoById);
     }
 
@@ -118,8 +115,7 @@ public class ProductController {
                     .name(productSaveResult.getName())
                     .description(productSaveResult.getDescription())
                     .serialNumber(productSaveResult.getSerialNumber())
-                    .photoUrl(productSaveResult.getPhotoUrl())
-                    .build();
+                     .build();
             return ResponseEntity.ok(productSaveResultDto);
         }else{
             throw new ProductAlreadyExistsException(String.format("Product with serial number %s already exists",productSaveDto.getSerialNumber()));
@@ -134,8 +130,7 @@ public class ProductController {
                 .name(productById.getName())
                 .description(productById.getDescription())
                 .serialNumber(productById.getSerialNumber())
-                .photoUrl(productById.getPhotoUrl())
-                .build();
+                 .build();
         return ResponseEntity.ok(productDtoById);
     }
 
