@@ -67,15 +67,15 @@ public class ProductController {
 
 
     @PostMapping("/save")
-    public ResponseEntity<ProductDto>saveProduct(@RequestParam("data") ProductSaveDto productSaveDto) throws ProductInvalidParameterException, ProductAlreadyExistsException {
+    public ResponseEntity<ProductDto>saveProduct(@RequestBody ProductSaveDto productSaveDto) throws ProductInvalidParameterException, ProductAlreadyExistsException {
         if(!productService.existsBySerialNumber(productSaveDto.getSerialNumber())) {
             Product productSave = new Product();
             productSave.setName(productSaveDto.getName());
             productSave.setDescription(productSaveDto.getDescription());
             productSave.setSerialNumber(productSaveDto.getSerialNumber());
             productSave.setColor(productSaveDto.getColor());
-            productSave.setUniqCode(productSave.getUniqCode());
-            productSave.setCategory(productSave.getCategory());
+            productSave.setUniqCode(productSaveDto.getUniqCode());
+            productSave.setCategory(productSaveDto.getCategory());
             Product productSaveResult = productService.saveProduct(productSave);
             ProductDto productDtoSaveResultDto = getProductDto(productSaveResult);
             return ResponseEntity.ok(productDtoSaveResultDto);
